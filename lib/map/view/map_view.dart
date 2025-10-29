@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:soluciona/main.dart';
 import 'package:soluciona/map/cubit/map_cubit.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -82,7 +83,7 @@ class _MapViewState extends State<MapView> {
               children: [
                 TileLayer(
                   urlTemplate:
-                      'https://api.maptiler.com/maps/basic/{z}/{x}/{y}.jpg?key=<key>',
+                      'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${dotenv.get("API_KEY")}',
                   userAgentPackageName: 'com.example.soluciona',
                 ),
 
@@ -100,6 +101,11 @@ class _MapViewState extends State<MapView> {
                               Icons.person_pin_circle,
                               color: mediumBlue,
                               size: 40.0,
+                              shadows: [
+                                Shadow(color: white, blurRadius: 3),
+                                Shadow(color: white, blurRadius: 3),
+                                Shadow(color: white, blurRadius: 3),
+                              ],
                             ),
                           ),
                         ],

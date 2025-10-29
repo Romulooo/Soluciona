@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soluciona/map/view/map_page.dart';
 
 class AuthView extends StatefulWidget {
   const AuthView({super.key});
@@ -39,10 +40,7 @@ class _AuthViewState extends State<AuthView> {
               children: [
                 Column(
                   children: [
-                    Image.asset(
-                      "../../../assets/logo.png",
-                      height: 80,
-                    ),
+                    Image.asset("assets/logo.png", height: 80),
                     const SizedBox(height: 10),
                     Text(
                       "SOLUCIONA",
@@ -126,6 +124,10 @@ class _AuthViewState extends State<AuthView> {
                     ),
                     onPressed: () {
                       // TODO: lógica de login
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MapPage()),
+                      );
                     },
                     child: const Text(
                       "Entrar",
@@ -143,20 +145,14 @@ class _AuthViewState extends State<AuthView> {
                 Row(
                   children: [
                     Expanded(
-                      child: Divider(
-                        color: Colors.grey.shade300,
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Colors.grey.shade300, thickness: 1),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text("ou"),
                     ),
                     Expanded(
-                      child: Divider(
-                        color: Colors.grey.shade300,
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Colors.grey.shade300, thickness: 1),
                     ),
                   ],
                 ),
@@ -180,7 +176,10 @@ class _AuthViewState extends State<AuthView> {
                     padding: const EdgeInsets.all(8.0),
                     child: const Text(
                       "Criar nova conta",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
