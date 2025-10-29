@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soluciona/main.dart';
 import 'package:soluciona/map/view/map_page.dart';
 
 class AuthView extends StatefulWidget {
@@ -56,56 +57,66 @@ class _AuthViewState extends State<AuthView> {
                 ),
 
                 // Campo usuário
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: "Usuário",
-                    prefixIcon: const Icon(Icons.person_outline),
-                    filled: true,
-                    fillColor: const Color(0xFFF2F5F9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
+                TextSelectionTheme(
+                  data: TextSelectionThemeData(
+                    selectionColor: lightBlue.withOpacity(0.5),
                   ),
-                  cursorColor: primaryColor,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      labelText: "Usuário",
+                      prefixIcon: const Icon(Icons.person_outline),
+                      filled: true,
+                      fillColor: const Color(0xFFF2F5F9),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
+                      ),
+                    ),
+                    cursorColor: primaryColor,
+                  ),
                 ),
 
                 const SizedBox(height: 16),
 
                 // Campo senha
-                TextField(
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: "Senha",
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF2F5F9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
+                TextSelectionTheme(
+                  data: TextSelectionThemeData(
+                    selectionColor: lightBlue.withOpacity(0.5),
                   ),
-                  cursorColor: primaryColor,
+                  child: TextField(
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: "Senha",
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF2F5F9),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
+                      ),
+                    ),
+                    cursorColor: primaryColor,
+                  ),
                 ),
 
                 const SizedBox(height: 24),
@@ -123,7 +134,6 @@ class _AuthViewState extends State<AuthView> {
                       elevation: 3,
                     ),
                     onPressed: () {
-                      // TODO: lógica de login
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MapPage()),

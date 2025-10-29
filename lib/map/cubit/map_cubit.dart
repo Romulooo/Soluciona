@@ -7,7 +7,7 @@ abstract class MapState extends Equatable {
   const MapState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 // Estado inicial
@@ -19,11 +19,12 @@ class MapLoading extends MapState {}
 // Estado de sucesso
 class MapSuccess extends MapState {
   final LatLng location;
+  final LatLng? reportPin;
 
-  const MapSuccess(this.location);
+  const MapSuccess({required this.location, this.reportPin});
 
   @override
-  List<Object> get props => [location];
+  List<Object?> get props => [location, reportPin];
 }
 
 // Estado de falha
@@ -68,9 +69,23 @@ class MapCubit extends Cubit<MapState> {
 
       final userLocation = LatLng(position.latitude, position.longitude);
 
-      emit(MapSuccess(userLocation));
+      emit(MapSuccess(location: userLocation));
     } catch (e) {
       emit(MapFailure('Erro ao obter localização: ${e.toString()}'));
+    }
+  }
+
+  Future<void> reportPin(final LatLng tapPosition) async {
+    final currentState = state;
+    if (currentState is MapSuccess) {
+      emit(MapSuccess(location: currentState.location, reportPin: tapPosition));
+    }
+  }
+
+  Future<void> clearPin() async {
+    final currentState = state;
+    if (currentState is MapSuccess) {
+      emit(MapSuccess(location: currentState.location, reportPin: null));
     }
   }
 }
