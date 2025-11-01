@@ -152,8 +152,8 @@ class _MapViewState extends State<MapView> {
                               final TextEditingController _reportController =
                                   TextEditingController();
                               final TextEditingController
-                              _descripitionController = TextEditingController();
-                              
+                              _descriptionController = TextEditingController();
+
                               final TextEditingController _roadController =
                                   TextEditingController(text: place["road"]);
                               final TextEditingController _suburbController =
@@ -171,7 +171,7 @@ class _MapViewState extends State<MapView> {
                                     ),
                                     child: SizedBox(
                                       width: 450,
-                                      height: 400,
+                                      height: 450,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.0),
                                         child: Column(
@@ -201,7 +201,7 @@ class _MapViewState extends State<MapView> {
                                                           _roadController,
                                                       minLines: 1,
                                                       maxLines: 4,
-                                                      maxLength: 30,
+                                                      maxLength: 40,
                                                       decoration: InputDecoration(
                                                         floatingLabelStyle:
                                                             TextStyle(
@@ -358,7 +358,7 @@ class _MapViewState extends State<MapView> {
                                               ),
                                               child: TextField(
                                                 controller:
-                                                    _descripitionController,
+                                                    _descriptionController,
                                                 minLines: 1,
                                                 maxLines: 4,
                                                 maxLength: 200,
@@ -415,19 +415,64 @@ class _MapViewState extends State<MapView> {
                                                   elevation: 3,
                                                 ),
                                                 onPressed: () {
-                                                  final report = Report(
-                                                    name: "Teste",
-                                                    description: "Descrição",
-                                                    latitude: "-52.0",
-                                                    longitude: "-27.0",
-                                                    place: "Rua do IFC",
-                                                    registeredBy: "0",
-                                                  );
 
-                                                  context
-                                                      .read<ReportCubit>()
-                                                      .sendReport(report);
-                                                  Navigator.pop(context);
+                                                //Verifica se algum tá vazio
+                                                  if (_roadController
+                                                          .text
+                                                          .isNotEmpty &&
+                                                      _suburbController
+                                                          .text
+                                                          .isNotEmpty &&
+                                                      _reportController
+                                                          .text
+                                                          .isNotEmpty &&
+                                                      _descriptionController
+                                                          .text
+                                                          .isNotEmpty) {
+                                                    // Não está vazio
+                                                    final report = Report(
+                                                      name:
+                                                          _reportController
+                                                              .text,
+                                                      description:
+                                                          _descriptionController
+                                                              .text,
+                                                      latitude:
+                                                          state
+                                                              .location
+                                                              .latitude
+                                                              .toString(),
+                                                      longitude:
+                                                          state
+                                                              .location
+                                                              .longitude
+                                                              .toString(),
+                                                      place:
+                                                          "${place["road"]}, ${place["suburb"]}",
+                                                      registeredBy:
+                                                          "0", // TODO: Colocar o nome do usuário
+                                                    );
+
+                                                    context
+                                                        .read<ReportCubit>()
+                                                        .sendReport(report);
+                                                    Navigator.pop(context);
+
+                                                  } else {
+                                                    //Algum está vazio
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).clearSnackBars();
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          "Preencha todos os campos corretamente",
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
                                                 },
                                                 child: const Text(
                                                   "Enviar",
