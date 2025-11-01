@@ -145,7 +145,20 @@ class _MapViewState extends State<MapView> {
                                 ),
                               );
                             },
-                            onTap: () {
+                            onTap: () async {
+                              final place = await context
+                                  .read<MapCubit>()
+                                  .getPlace(state.reportPin!);
+                              final TextEditingController _reportController =
+                                  TextEditingController();
+                              final TextEditingController
+                              _descripitionController = TextEditingController();
+                              
+                              final TextEditingController _roadController =
+                                  TextEditingController(text: place["road"]);
+                              final TextEditingController _suburbController =
+                                  TextEditingController(text: place["suburb"]);
+
                               showPopupCard(
                                 context: context,
                                 builder: (context) {
@@ -157,7 +170,7 @@ class _MapViewState extends State<MapView> {
                                       borderRadius: BorderRadius.circular(12.0),
                                     ),
                                     child: SizedBox(
-                                      width: 300,
+                                      width: 450,
                                       height: 400,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.0),
@@ -171,12 +184,131 @@ class _MapViewState extends State<MapView> {
                                               ),
                                             ),
                                             SizedBox(height: 20),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: TextSelectionTheme(
+                                                    data:
+                                                        TextSelectionThemeData(
+                                                          selectionColor:
+                                                              lightBlue
+                                                                  .withOpacity(
+                                                                    0.5,
+                                                                  ),
+                                                        ),
+                                                    child: TextField(
+                                                      controller:
+                                                          _roadController,
+                                                      minLines: 1,
+                                                      maxLines: 4,
+                                                      maxLength: 30,
+                                                      decoration: InputDecoration(
+                                                        floatingLabelStyle:
+                                                            TextStyle(
+                                                              color: darkBlue,
+                                                            ),
+                                                        labelText: "Rua",
+
+                                                        filled: true,
+                                                        fillColor: const Color(
+                                                          0xFFF2F5F9,
+                                                        ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                12,
+                                                              ),
+                                                          borderSide:
+                                                              BorderSide.none,
+                                                        ),
+                                                        focusedBorder: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                12,
+                                                              ),
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                const Color.fromARGB(
+                                                                  255,
+                                                                  60,
+                                                                  60,
+                                                                  60,
+                                                                ),
+                                                            width: 2,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      cursorColor: darkBlue,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 4),
+                                                Expanded(
+                                                  child: TextSelectionTheme(
+                                                    data:
+                                                        TextSelectionThemeData(
+                                                          selectionColor:
+                                                              lightBlue
+                                                                  .withOpacity(
+                                                                    0.5,
+                                                                  ),
+                                                        ),
+                                                    child: TextField(
+                                                      controller:
+                                                          _suburbController,
+                                                      minLines: 1,
+                                                      maxLines: 4,
+                                                      maxLength: 30,
+                                                      decoration: InputDecoration(
+                                                        floatingLabelStyle:
+                                                            TextStyle(
+                                                              color: darkBlue,
+                                                            ),
+                                                        labelText: "Bairro",
+
+                                                        filled: true,
+                                                        fillColor: const Color(
+                                                          0xFFF2F5F9,
+                                                        ),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                12,
+                                                              ),
+                                                          borderSide:
+                                                              BorderSide.none,
+                                                        ),
+                                                        focusedBorder: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                12,
+                                                              ),
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                const Color.fromARGB(
+                                                                  255,
+                                                                  60,
+                                                                  60,
+                                                                  60,
+                                                                ),
+                                                            width: 2,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      cursorColor: darkBlue,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 8),
                                             TextSelectionTheme(
                                               data: TextSelectionThemeData(
                                                 selectionColor: lightBlue
                                                     .withOpacity(0.5),
                                               ),
                                               child: TextField(
+                                                controller: _reportController,
                                                 maxLength: 30,
                                                 decoration: InputDecoration(
                                                   floatingLabelStyle: TextStyle(
@@ -225,6 +357,8 @@ class _MapViewState extends State<MapView> {
                                                     .withOpacity(0.5),
                                               ),
                                               child: TextField(
+                                                controller:
+                                                    _descripitionController,
                                                 minLines: 1,
                                                 maxLines: 4,
                                                 maxLength: 200,
