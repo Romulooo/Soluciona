@@ -101,7 +101,7 @@ class _MapViewState extends State<MapView> {
               children: [
                 TileLayer(
                   urlTemplate:
-                      'https://api.maptiler.com/maps/basic/{z}/{x}/{y}.jpg?key=CanpjbKvOGYhddHuo8Ut',
+                      'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=CanpjbKvOGYhddHuo8Ut',
                   userAgentPackageName: 'com.example.soluciona',
                 ),
 
@@ -448,7 +448,7 @@ class _MapViewState extends State<MapView> {
                                                               .longitude
                                                               .toString(),
                                                       place:
-                                                          "${place["road"]}, ${place["suburb"]}",
+                                                          "${_roadController.text}, ${_suburbController.text}",
                                                       registeredBy:
                                                           "0", // TODO: Colocar o nome do usuário
                                                     );

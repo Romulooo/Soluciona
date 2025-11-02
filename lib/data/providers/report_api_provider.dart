@@ -1,9 +1,10 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/report_model.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ReportApiProvider {
-  final String apiUrl = '<URL DA API>';
+  final String apiUrl = dotenv.get("API_URL");
 
   Future<void> sendReport(Report report) async {
     final url = Uri.parse('$apiUrl/reports');

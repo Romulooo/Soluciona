@@ -3,7 +3,8 @@ import 'package:soluciona/main.dart';
 import 'package:soluciona/map/view/map_page.dart';
 
 class AuthView extends StatefulWidget {
-  const AuthView({super.key});
+  bool login;
+  AuthView({super.key, required this.login});
 
   @override
   State<AuthView> createState() => _AuthViewState();
@@ -11,6 +12,13 @@ class AuthView extends StatefulWidget {
 
 class _AuthViewState extends State<AuthView> {
   bool _obscurePassword = true;
+  late bool _isLogin;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLogin = widget.login;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,68 +64,222 @@ class _AuthViewState extends State<AuthView> {
                   ],
                 ),
 
-                // Campo usuário
-                TextSelectionTheme(
-                  data: TextSelectionThemeData(
-                    selectionColor: lightBlue.withOpacity(0.5),
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: "Usuário",
-                      prefixIcon: const Icon(Icons.person_outline),
-                      filled: true,
-                      fillColor: const Color(0xFFF2F5F9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor, width: 2),
-                      ),
-                    ),
-                    cursorColor: primaryColor,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Campo senha
-                TextSelectionTheme(
-                  data: TextSelectionThemeData(
-                    selectionColor: lightBlue.withOpacity(0.5),
-                  ),
-                  child: TextField(
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: "Senha",
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
+                _isLogin
+                    ? Column(
+                      children: [
+                        // Campo usuário
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: lightBlue.withOpacity(0.5),
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              labelText: "Usuário",
+                              prefixIcon: const Icon(Icons.person_outline),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: primaryColor,
+                          ),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF2F5F9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor, width: 2),
-                      ),
+
+                        const SizedBox(height: 16),
+
+                        // Campo senha
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: lightBlue.withOpacity(0.5),
+                          ),
+                          child: TextField(
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: "Senha",
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: primaryColor,
+                          ),
+                        ),
+                      ],
+                    )
+                    : Column(
+                      children: [
+                        // Campo usuário
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: lightBlue.withOpacity(0.5),
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              labelText: "Usuário",
+                              prefixIcon: const Icon(Icons.person_outline),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: primaryColor,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Campo email
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: lightBlue.withOpacity(0.5),
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              labelText: "E-mail",
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: primaryColor,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Campo senha
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: lightBlue.withOpacity(0.5),
+                          ),
+                          child: TextField(
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: "Senha",
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: primaryColor,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Campo para confirmar senha
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: lightBlue.withOpacity(0.5),
+                          ),
+                          child: TextField(
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: "Confirmar senha",
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: primaryColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    cursorColor: primaryColor,
-                  ),
-                ),
 
                 const SizedBox(height: 24),
 
@@ -139,8 +301,8 @@ class _AuthViewState extends State<AuthView> {
                         MaterialPageRoute(builder: (context) => MapPage()),
                       );
                     },
-                    child: const Text(
-                      "Entrar",
+                    child: Text(
+                      _isLogin ? "Entrar" : "Cadastrar",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -180,12 +342,14 @@ class _AuthViewState extends State<AuthView> {
                     ),
                   ),
                   onPressed: () {
-                    // TODO: ir para cadastro
+                    setState(() {
+                      _isLogin = !_isLogin;
+                    });
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: const Text(
-                      "Criar nova conta",
+                    child: Text(
+                      _isLogin ? "Criar nova conta" : "Já possuo uma conta",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
