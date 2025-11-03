@@ -8,6 +8,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_popup_card/flutter_popup_card.dart';
 import 'package:soluciona/report/report_cubit.dart';
 
+import 'package:permission_handler/permission_handler.dart';
+import 'package:file_picker/file_picker.dart';
+
 class MapView extends StatefulWidget {
   const MapView({super.key});
 
@@ -16,11 +19,44 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
+  List<Report> _reports = [
+    Report(
+      name: "Teste",
+      description: "Descrição",
+      latitude: "-27",
+      longitude: "-52",
+      place: "Conkas",
+      registeredBy: "1",
+    ),
+  ];
+
+  PlatformFile? _selectedFile;
+
   final MapController mapController = MapController();
   @override
   void initState() {
     super.initState();
     context.read<MapCubit>().getCurrentLocation();
+  }
+
+  Future<void> _selecionarArquivo() async {
+    await [Permission.storage].request();
+
+    FilePickerResult? resultado = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.image,
+      withData: true,
+    );
+
+    if (resultado != null && resultado.files.isNotEmpty) {
+      setState(() {
+        _selectedFile = resultado.files.first;
+      });
+    } else {
+      setState(() {
+        _selectedFile = null;
+      });
+    }
   }
 
   @override
@@ -31,16 +67,7 @@ class _MapViewState extends State<MapView> {
         actions: [
           Column(
             children: [
-              Icon(
-                Icons.person,
-                color: darkBlue,
-                size: 34,
-                shadows: [
-                  Shadow(color: white, blurRadius: 3),
-                  Shadow(color: white, blurRadius: 3),
-                  Shadow(color: white, blurRadius: 3),
-                ],
-              ),
+              Icon(Icons.person, color: darkBlue, size: 34),
               Text("Rômulo"),
             ],
           ),
@@ -105,6 +132,68 @@ class _MapViewState extends State<MapView> {
                   userAgentPackageName: 'com.example.soluciona',
                 ),
 
+                MarkerLayer(
+                  markers: List.generate(_reports.length, (index) {
+                    final report = _reports[index];
+
+                    return Marker(
+                      point: LatLng(
+                        double.parse(report.latitude),
+                        double.parse(report.longitude),
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          showPopupCard(
+                            context: context,
+                            builder: (context) {
+                              return PopupCard(
+                                elevation: 8,
+
+                                color: white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                child: SizedBox(
+                                  width: 300,
+                                  height: 500,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          report.name,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(report.description),
+                                        Spacer(),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+
+                            alignment: Alignment.center,
+                            useSafeArea: true,
+                            dimBackground: true,
+                          );
+                        },
+                        child: Icon(
+                          Icons.report_problem,
+                          color: Colors.red,
+                          shadows: [
+                            Shadow(color: white, blurRadius: 1),
+                            Shadow(color: white, blurRadius: 1),
+                            Shadow(color: white, blurRadius: 1),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+
                 BlocBuilder<MapCubit, MapState>(
                   builder: (context, state) {
                     if (state is! MapSuccess) {
@@ -122,6 +211,11 @@ class _MapViewState extends State<MapView> {
                         child: Icon(
                           Icons.person_pin_circle,
                           color: mediumBlue,
+                          shadows: [
+                            Shadow(color: white, blurRadius: 1),
+                            Shadow(color: white, blurRadius: 1),
+                            Shadow(color: white, blurRadius: 1),
+                          ],
                           size: 40,
                         ),
                       ),
@@ -171,7 +265,7 @@ class _MapViewState extends State<MapView> {
                                     ),
                                     child: SizedBox(
                                       width: 450,
-                                      height: 450,
+                                      height: 500,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.0),
                                         child: Column(
@@ -400,6 +494,48 @@ class _MapViewState extends State<MapView> {
                                               ),
                                             ),
                                             Spacer(),
+                                            ElevatedButtonTheme(
+                                              data: ElevatedButtonThemeData(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: darkBlue,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  _selecionarArquivo();
+                                                },
+                                                child: Text(
+                                                  'Escolher Arquivo',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 6),
+                                            if (_selectedFile != null)
+                                              /*SizedBox(
+                                                width: 200,
+                                                child: Image.memory(
+                                                  _selectedFile!.bytes!,
+                                                  height: 50,
+                                                ),
+                                              )*/
+                                              SizedBox()
+                                            else
+                                              Text(
+                                                'Nenhum arquivo selecionado',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(fontSize: 12),
+                                              ),
+                                            SizedBox(height: 10),
                                             SizedBox(
                                               width: double.infinity,
                                               height: 40,
@@ -415,8 +551,7 @@ class _MapViewState extends State<MapView> {
                                                   elevation: 3,
                                                 ),
                                                 onPressed: () {
-
-                                                //Verifica se algum tá vazio
+                                                  //Verifica se algum tá vazio
                                                   if (_roadController
                                                           .text
                                                           .isNotEmpty &&
@@ -457,7 +592,6 @@ class _MapViewState extends State<MapView> {
                                                         .read<ReportCubit>()
                                                         .sendReport(report);
                                                     Navigator.pop(context);
-
                                                   } else {
                                                     //Algum está vazio
                                                     ScaffoldMessenger.of(
@@ -498,12 +632,41 @@ class _MapViewState extends State<MapView> {
                             },
                             child: Column(
                               children: [
-                                Text(
-                                  "Relatar Problema",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.red),
+                                Stack(
+                                  children: [
+                                    Text(
+                                      "Relatar Problema",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Relatar Problema",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        foreground:
+                                            Paint()
+                                              ..style = PaintingStyle.stroke
+                                              ..strokeWidth = 0.2
+                                              ..color = const Color.fromARGB(
+                                                255,
+                                                255,
+                                                255,
+                                                255,
+                                              ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Icon(
+                                  shadows: [
+                                    Shadow(color: white, blurRadius: 1),
+                                    Shadow(color: white, blurRadius: 1),
+                                    Shadow(color: white, blurRadius: 1),
+                                  ],
                                   Icons.add_location_alt_rounded,
                                   color: Colors.red,
                                   size: 30,
