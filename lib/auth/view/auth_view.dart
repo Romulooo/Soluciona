@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:soluciona/main.dart';
 import 'package:soluciona/map/view/map_page.dart';
@@ -483,6 +485,8 @@ class _AuthViewState extends State<AuthView> {
                                   ? DropdownButtonFormField<String>(
                                     value: _selectedCity,
                                     isExpanded: true,
+                                    dropdownColor: white,
+                                    style: TextStyle(color: darkBlue),
                                     items:
                                         _cities.map((String city) {
                                           return DropdownMenuItem<String>(
@@ -523,6 +527,9 @@ class _AuthViewState extends State<AuthView> {
                                   : DropdownButtonFormField<String>(
                                     value: _selectedInstitution,
                                     isExpanded: true,
+                                    dropdownColor: white,
+                                    style: TextStyle(color: darkBlue),
+
                                     items:
                                         _institutions.map((String institution) {
                                           return DropdownMenuItem<String>(
