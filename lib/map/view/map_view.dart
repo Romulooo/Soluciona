@@ -118,8 +118,12 @@ class _MapViewState extends State<MapView> {
             FlutterMap(
               mapController: mapController,
               options: MapOptions(
-                onTap: (tapPosition, point) {
-                  context.read<MapCubit>().reportPin(point);
+                onTap: (tapPosition, point) async {
+                  final place = await context.read<MapCubit>().getPlace(point);
+
+                  if (place["town"] == "Concórdia") { //TODO: Pegar a cidade do usuário
+                    context.read<MapCubit>().reportPin(point);
+                  }
                 },
 
                 initialCenter: const LatLng(0, 0),

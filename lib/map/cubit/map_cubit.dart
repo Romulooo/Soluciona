@@ -26,16 +26,18 @@ class MapSuccess extends MapState {
   final LatLng? reportPin;
   final String? road;
   final String? suburb;
+  final String? town;
 
   const MapSuccess({
     required this.location,
     this.reportPin,
     this.suburb,
     this.road,
+    this.town,
   });
 
   @override
-  List<Object?> get props => [location, reportPin, road, suburb];
+  List<Object?> get props => [location, reportPin, road, suburb, town];
 }
 
 // Estado de falha
@@ -121,6 +123,7 @@ class MapCubit extends Cubit<MapState> {
 
       String road = data["address"]["road"] ?? "Rua indefinida";
       String suburb = data["address"]["suburb"] ?? "Indefinido";
+      String town = data["address"]["town"] ?? "Indefinida";
 
       if (currentState is MapSuccess) {
         emit(
@@ -128,14 +131,19 @@ class MapCubit extends Cubit<MapState> {
             location: currentState.location,
             road: road,
             suburb: suburb,
+            town: town,
           ),
         );
 
-        return {"road": road, "suburb": suburb};
+        return {"road": road, "suburb": suburb, "town": town};
       }
     } else {
       emit(MapFailure("Erro ao nomear localização"));
     }
-    return {"road": "Rua indefinida", "suburb": "Indefinido"};
+    return {
+      "road": "Rua indefinida",
+      "suburb": "Indefinido",
+      "town": "Indefinida",
+    };
   }
 }
