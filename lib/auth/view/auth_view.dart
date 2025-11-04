@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:soluciona/main.dart';
 import 'package:soluciona/map/view/map_page.dart';
 
@@ -28,16 +29,13 @@ class _AuthViewState extends State<AuthView> {
   late TextEditingController _birthdateController;
 
   final List<String> _cities = [
-    'São Paulo',
-    'Rio de Janeiro',
-    'Belo Horizonte',
-    'Salvador',
-    'Brasília',
-    'Curitiba',
-    'Porto Alegre',
-    'Recife',
-    'Fortaleza',
-    'Manaus',
+    'Peritiba',
+    'Paim Filho',
+    'Concórdia',
+    'Itá',
+    'Capinzal',
+    'Chapecó',
+    'Xanxerê',
   ];
   final List<String> _institutions = ['IFC Concórdia', 'EEBIAS'];
 
@@ -147,7 +145,9 @@ class _AuthViewState extends State<AuthView> {
                         // Campo usuário
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
                             decoration: InputDecoration(
@@ -176,7 +176,9 @@ class _AuthViewState extends State<AuthView> {
                         // Campo senha
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
                             obscureText: _obscurePassword,
@@ -219,7 +221,9 @@ class _AuthViewState extends State<AuthView> {
                         // Campo usuário
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
                             controller: _usernameController,
@@ -249,7 +253,9 @@ class _AuthViewState extends State<AuthView> {
                         // Campo email
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
                             controller: _emailController,
@@ -279,9 +285,16 @@ class _AuthViewState extends State<AuthView> {
                         // Campo telefone
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
+                            keyboardType: TextInputType.number,
+                            maxLength: 11,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             controller: _phoneController,
                             decoration: InputDecoration(
                               labelText: "Telefone",
@@ -309,7 +322,9 @@ class _AuthViewState extends State<AuthView> {
                         // Campo data de nascimento
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
                             controller: _birthdateController,
@@ -343,7 +358,9 @@ class _AuthViewState extends State<AuthView> {
                         // Campo senha
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
                             controller: _passwordController,
@@ -386,7 +403,9 @@ class _AuthViewState extends State<AuthView> {
                         // Campo para confirmar senha
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
                             controller: _confirmpasswordController,
@@ -477,7 +496,9 @@ class _AuthViewState extends State<AuthView> {
 
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                            selectionColor: lightBlue.withAlpha(90),
+                            cursorColor: lightBlue,
+                            selectionHandleColor: lightBlue,
                           ),
 
                           child:
