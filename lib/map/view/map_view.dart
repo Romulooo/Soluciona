@@ -19,7 +19,7 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
-  List<Report> _reports = [
+  final List<Report> _reports = [
     Report(
       name: "Teste",
       description: "Descrição",
@@ -229,7 +229,7 @@ class _MapViewState extends State<MapView> {
                           rotate: true,
                           point: state.reportPin!,
                           child: GestureDetector(
-                            onLongPress: () {
+                            /*onLongPress: () {
                               context.read<MapCubit>().clearPin();
                               ScaffoldMessenger.of(context).clearSnackBars();
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -238,7 +238,7 @@ class _MapViewState extends State<MapView> {
                                   duration: Duration(seconds: 2),
                                 ),
                               );
-                            },
+                            },*/
                             onTap: () async {
                               final place = await context
                                   .read<MapCubit>()
@@ -286,8 +286,8 @@ class _MapViewState extends State<MapView> {
                                                         TextSelectionThemeData(
                                                           selectionColor:
                                                               lightBlue
-                                                                  .withOpacity(
-                                                                    0.5,
+                                                                  .withValues(
+                                                                    alpha: 0.5,
                                                                   ),
                                                         ),
                                                     child: TextField(
@@ -343,8 +343,8 @@ class _MapViewState extends State<MapView> {
                                                         TextSelectionThemeData(
                                                           selectionColor:
                                                               lightBlue
-                                                                  .withOpacity(
-                                                                    0.5,
+                                                                  .withValues(
+                                                                    alpha: 0.5,
                                                                   ),
                                                         ),
                                                     child: TextField(
@@ -399,7 +399,7 @@ class _MapViewState extends State<MapView> {
                                             TextSelectionTheme(
                                               data: TextSelectionThemeData(
                                                 selectionColor: lightBlue
-                                                    .withOpacity(0.5),
+                                                    .withValues(alpha: 0.5),
                                               ),
                                               child: TextField(
                                                 controller: _reportController,
@@ -448,7 +448,7 @@ class _MapViewState extends State<MapView> {
                                             TextSelectionTheme(
                                               data: TextSelectionThemeData(
                                                 selectionColor: lightBlue
-                                                    .withOpacity(0.5),
+                                                    .withValues(alpha: 0.5),
                                               ),
                                               child: TextField(
                                                 controller:

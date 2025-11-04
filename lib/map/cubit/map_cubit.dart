@@ -89,7 +89,13 @@ class MapCubit extends Cubit<MapState> {
   Future<void> reportPin(final LatLng tapPosition) async {
     final currentState = state;
     if (currentState is MapSuccess) {
-      emit(MapSuccess(location: currentState.location, reportPin: tapPosition));
+      if (currentState.reportPin == null) {
+        emit(
+          MapSuccess(location: currentState.location, reportPin: tapPosition),
+        );
+      } else {
+        clearPin();
+      }
     }
   }
 

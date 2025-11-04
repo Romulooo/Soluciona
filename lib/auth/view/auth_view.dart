@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:soluciona/main.dart';
 import 'package:soluciona/map/view/map_page.dart';
 
+enum AccountType { instituicao, cidade }
+
 class AuthView extends StatefulWidget {
   bool login;
   AuthView({super.key, required this.login});
@@ -13,20 +15,93 @@ class AuthView extends StatefulWidget {
 class _AuthViewState extends State<AuthView> {
   bool _obscurePassword = true;
   late bool _isLogin;
+  late AccountType _accountType; // Tipo da conta
+  String? _selectedCity; // Cidade selecionada
+  String? _selectedInstitution; // Instituição selecionada
+  late TextEditingController _usernameController;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+  late TextEditingController _confirmpasswordController;
+  late TextEditingController _phoneController;
+  late TextEditingController _birthdateController;
+
+  final List<String> _cities = [
+    'São Paulo',
+    'Rio de Janeiro',
+    'Belo Horizonte',
+    'Salvador',
+    'Brasília',
+    'Curitiba',
+    'Porto Alegre',
+    'Recife',
+    'Fortaleza',
+    'Manaus',
+  ];
+  final List<String> _institutions = ['IFC Concórdia', 'EEBIAS'];
 
   @override
   void initState() {
     super.initState();
     _isLogin = widget.login;
+    _accountType = AccountType.cidade;
+    _birthdateController = TextEditingController();
+    _usernameController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _confirmpasswordController = TextEditingController();
+    _phoneController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _birthdateController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      // Define a data inicial para 18 anos atrás
+      initialDate: DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+      ),
+      firstDate: DateTime(1900), // Ano inicial permitido
+      lastDate: DateTime.now(), // Até a data de hoje
+      helpText: 'Selecione sua data de nascimento',
+      cancelText: 'Cancelar',
+      confirmText: 'Confirmar',
+
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: mediumBlue,
+              onPrimary: white,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: mediumBlue),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        String formattedDate =
+            "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
+        _birthdateController.text = formattedDate;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = const Color(0xFF1565C0);
-    final Color backgroundColor = const Color(0xFFF5F7FA);
-
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: white,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
@@ -56,11 +131,11 @@ class _AuthViewState extends State<AuthView> {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: primaryColor,
+                        color: mediumBlue,
                         letterSpacing: 1.2,
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30),
                   ],
                 ),
 
@@ -70,7 +145,7 @@ class _AuthViewState extends State<AuthView> {
                         // Campo usuário
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: lightBlue.withOpacity(0.5),
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
                           ),
                           child: TextField(
                             decoration: InputDecoration(
@@ -85,12 +160,12 @@ class _AuthViewState extends State<AuthView> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: primaryColor,
+                                  color: mediumBlue,
                                   width: 2,
                                 ),
                               ),
                             ),
-                            cursorColor: primaryColor,
+                            cursorColor: mediumBlue,
                           ),
                         ),
 
@@ -99,7 +174,7 @@ class _AuthViewState extends State<AuthView> {
                         // Campo senha
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: lightBlue.withOpacity(0.5),
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
                           ),
                           child: TextField(
                             obscureText: _obscurePassword,
@@ -127,12 +202,12 @@ class _AuthViewState extends State<AuthView> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: primaryColor,
+                                  color: mediumBlue,
                                   width: 2,
                                 ),
                               ),
                             ),
-                            cursorColor: primaryColor,
+                            cursorColor: mediumBlue,
                           ),
                         ),
                       ],
@@ -142,9 +217,10 @@ class _AuthViewState extends State<AuthView> {
                         // Campo usuário
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: lightBlue.withOpacity(0.5),
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
                           ),
                           child: TextField(
+                            controller: _usernameController,
                             decoration: InputDecoration(
                               labelText: "Usuário",
                               prefixIcon: const Icon(Icons.person_outline),
@@ -157,12 +233,12 @@ class _AuthViewState extends State<AuthView> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: primaryColor,
+                                  color: mediumBlue,
                                   width: 2,
                                 ),
                               ),
                             ),
-                            cursorColor: primaryColor,
+                            cursorColor: mediumBlue,
                           ),
                         ),
 
@@ -171,9 +247,10 @@ class _AuthViewState extends State<AuthView> {
                         // Campo email
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: lightBlue.withOpacity(0.5),
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
                           ),
                           child: TextField(
+                            controller: _emailController,
                             decoration: InputDecoration(
                               labelText: "E-mail",
                               prefixIcon: const Icon(Icons.email_outlined),
@@ -186,23 +263,88 @@ class _AuthViewState extends State<AuthView> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: primaryColor,
+                                  color: mediumBlue,
                                   width: 2,
                                 ),
                               ),
                             ),
-                            cursorColor: primaryColor,
+                            cursorColor: mediumBlue,
                           ),
                         ),
 
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
+
+                        // Campo telefone
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                          ),
+                          child: TextField(
+                            controller: _phoneController,
+                            decoration: InputDecoration(
+                              labelText: "Telefone",
+                              prefixIcon: const Icon(Icons.phone),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: mediumBlue,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: mediumBlue,
+                          ),
+                        ),
+
+                        SizedBox(height: 16),
+
+                        // Campo data de nascimento
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                          ),
+                          child: TextField(
+                            controller: _birthdateController,
+                            readOnly: true, // Impede o teclado de abrir
+                            onTap:
+                                () =>
+                                    _selectDate(context), // Chama o date picker
+                            decoration: InputDecoration(
+                              labelText: "Data de Nascimento",
+                              prefixIcon: Icon(Icons.calendar_today_outlined),
+                              filled: true,
+                              fillColor: const Color(0xFFF2F5F9),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: mediumBlue,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            cursorColor: mediumBlue,
+                          ),
+                        ),
+
+                        SizedBox(height: 16),
 
                         // Campo senha
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: lightBlue.withOpacity(0.5),
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
                           ),
                           child: TextField(
+                            controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: "Senha",
@@ -228,12 +370,12 @@ class _AuthViewState extends State<AuthView> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: primaryColor,
+                                  color: mediumBlue,
                                   width: 2,
                                 ),
                               ),
                             ),
-                            cursorColor: primaryColor,
+                            cursorColor: mediumBlue,
                           ),
                         ),
 
@@ -242,9 +384,10 @@ class _AuthViewState extends State<AuthView> {
                         // Campo para confirmar senha
                         TextSelectionTheme(
                           data: TextSelectionThemeData(
-                            selectionColor: lightBlue.withOpacity(0.5),
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
                           ),
                           child: TextField(
+                            controller: _confirmpasswordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: "Confirmar senha",
@@ -270,18 +413,156 @@ class _AuthViewState extends State<AuthView> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: primaryColor,
+                                  color: mediumBlue,
                                   width: 2,
                                 ),
                               ),
                             ),
-                            cursorColor: primaryColor,
+                            cursorColor: mediumBlue,
                           ),
+                        ),
+
+                        SizedBox(height: 16),
+
+                        // Campo instituição ou cidade
+                        Text(
+                          "Vincular conta a:",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                        // Botões de Rádio
+                        Row(
+                          children: [
+                            Expanded(
+                              child: RadioListTile<AccountType>(
+                                title: const Text("Instituição"),
+                                value: AccountType.instituicao,
+                                groupValue: _accountType,
+                                onChanged: (AccountType? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _accountType = value;
+                                    });
+                                  }
+                                },
+                                activeColor: mediumBlue,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                            Expanded(
+                              child: RadioListTile<AccountType>(
+                                title: const Text("Cidade"),
+                                value: AccountType.cidade,
+                                groupValue: _accountType,
+                                onChanged: (AccountType? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _accountType = value;
+                                    });
+                                  }
+                                },
+                                activeColor: mediumBlue,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: 16),
+
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: mediumBlue.withValues(alpha: 0.5),
+                          ),
+
+                          child:
+                              _accountType == AccountType.cidade
+                                  ? DropdownButtonFormField<String>(
+                                    value: _selectedCity,
+                                    isExpanded: true,
+                                    items:
+                                        _cities.map((String city) {
+                                          return DropdownMenuItem<String>(
+                                            value: city,
+                                            child: Text(city),
+                                          );
+                                        }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        _selectedCity = newValue;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      labelText: "Nome da Cidade",
+                                      prefixIcon: const Icon(
+                                        Icons.location_city_outlined,
+                                      ),
+                                      filled: true,
+                                      fillColor: const Color(0xFFF2F5F9),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: mediumBlue,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    validator:
+                                        (value) =>
+                                            value == null
+                                                ? 'Por favor, selecione uma cidade'
+                                                : null,
+                                  )
+                                  : DropdownButtonFormField<String>(
+                                    value: _selectedInstitution,
+                                    isExpanded: true,
+                                    items:
+                                        _institutions.map((String institution) {
+                                          return DropdownMenuItem<String>(
+                                            value: institution,
+                                            child: Text(institution),
+                                          );
+                                        }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        _selectedInstitution = newValue;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      labelText: "Nome da Instituição",
+                                      prefixIcon: const Icon(Icons.school),
+                                      filled: true,
+                                      fillColor: const Color(0xFFF2F5F9),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: mediumBlue,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    validator:
+                                        (value) =>
+                                            value == null
+                                                ? 'Por favor, selecione uma instituição'
+                                                : null,
+                                  ),
                         ),
                       ],
                     ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // Botão Entrar
                 SizedBox(
@@ -289,7 +570,7 @@ class _AuthViewState extends State<AuthView> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
+                      backgroundColor: mediumBlue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -334,8 +615,8 @@ class _AuthViewState extends State<AuthView> {
                 // Botão criar conta
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: primaryColor,
-                    side: BorderSide(color: primaryColor, width: 1.5),
+                    foregroundColor: mediumBlue,
+                    side: BorderSide(color: mediumBlue, width: 1.5),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
