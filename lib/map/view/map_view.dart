@@ -683,17 +683,48 @@ class _MapViewState extends State<MapView> {
                 ),
               ],
             ),
-            /*Positioned(
+            Positioned(
               bottom: 14,
               left: 14,
               child: FloatingActionButton(
                 backgroundColor: white,
                 shape: CircleBorder(),
                 splashColor: lightBlue,
-                onPressed: () {},
-                child: Icon(Icons.report, color: darkBlue, size: 30),
+                onPressed: () {
+                  showModalBottomSheet<void>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: ListView.builder(
+                            itemCount: _reports.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                leading: Icon(Icons.report_problem),
+                                title: Text(_reports[index].name),
+                                subtitle: Text(_reports[index].place),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(width: 2),
+                                ),
+                                trailing: IconButton(
+                                  icon: Icon(Icons.info_outline),
+                                  onPressed: () {
+                                    // TODO: Abrir o Popup
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Icon(Icons.list, color: darkBlue, size: 30),
               ),
-            ),*/
+            ),
           ],
         ),
       ),
