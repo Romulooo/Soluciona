@@ -104,8 +104,9 @@ class _AuthViewState extends State<AuthView> {
                             selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
+                            controller: _usernameController,
                             decoration: InputDecoration(
-                              labelText: "Usuário",
+                              labelText: "Usuário, email ou telefone",
                               prefixIcon: const Icon(Icons.person_outline),
                               filled: true,
                               fillColor: const Color(0xFFF2F5F9),
@@ -135,6 +136,7 @@ class _AuthViewState extends State<AuthView> {
                             selectionHandleColor: lightBlue,
                           ),
                           child: TextField(
+                            controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: "Senha",
@@ -529,62 +531,86 @@ class _AuthViewState extends State<AuthView> {
                           child: CircularProgressIndicator(),
                         );
                       }
-                      return ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: mediumBlue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 3,
-                        ),
-                        onPressed: () {
-                          if (!_isLogin &&
-                              _usernameController.text.isNotEmpty &&
-                              _emailController.text.isNotEmpty &&
-                              _passwordController.text.isNotEmpty) {
-                            if (_passwordController.text ==
-                                _confirmpasswordController.text) {
-                              context.read<AuthCubit>().register(
-                                _usernameController.text,
-                                _emailController.text,
-                                _passwordController.text,
-                                _phoneController.text,
-                              );
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MapPage(),
-                                ),
-                              );
-                            } else {
-                             ScaffoldMessenger.of(context).clearSnackBars();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Senhas não coincidem",
-                                ),
+                      return BlocListener<AuthCubit, AuthState>(
+                        listener: (context, state) {
+                          if (state is AuthSuccess) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MapPage(),
                               ),
-                            ); 
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).clearSnackBars();
+                            );
+                          } else if (state is AuthFailure) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Preencha os campos corretamente",
-                                ),
-                              ),
+                              SnackBar(content: Text(state.error)),
                             );
                           }
                         },
-                        child: Text(
-                          _isLogin ? "Entrar" : "Cadastrar",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: mediumBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 3,
                           ),
+                          onPressed: () async {
+                            if (!_isLogin &&
+                                _usernameController.text.isNotEmpty &&
+                                _emailController.text.isNotEmpty &&
+                                _passwordController.text.isNotEmpty) {
+                              if (_passwordController.text ==
+                                  _confirmpasswordController.text) {
+                                await context.read<AuthCubit>().register(
+                                  _usernameController.text,
+                                  _emailController.text,
+                                  _passwordController.text,
+                                  _phoneController.text,
+                                );
+
+                                context.read<AuthCubit>().login(
+                                  _usernameController.text,
+                                  _passwordController.text,
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).clearSnackBars();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Senhas não coincidem."),
+                                  ),
+                                );
+                              }
+                            } else if (_isLogin &&
+                                _usernameController.text.isNotEmpty &&
+                                _passwordController.text.isNotEmpty) {
+                              context.read<AuthCubit>().login(
+                                _usernameController.text,
+                                _passwordController.text,
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).clearSnackBars();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Preencha os campos corretamente.",
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child:
+                              state is AuthLoading
+                                  ? CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                  : Text(
+                                    _isLogin ? "Entrar" : "Cadastrar",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                         ),
                       );
                     },

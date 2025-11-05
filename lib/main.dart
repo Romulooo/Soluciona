@@ -10,6 +10,7 @@ Color lightBlue = Color.fromARGB(255, 139, 197, 255);
 Color white = Color.fromARGB(255, 224, 224, 224);
 
 String appUsername = "";
+String access_token = "";
 
 void main() async {
   await dotenv.load();

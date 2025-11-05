@@ -44,11 +44,37 @@ class AuthFailure extends AuthState {
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
-  Future<void> login() async {
-    //TODO: Função para fazer um POST pro login
+  Future<void> login(String identifier, String password) async {
     http.Client client = http.Client();
 
-    client.post(Uri.parse(""));
+    emit(AuthLoading());
+
+    try {
+      final response = await client.post(
+        Uri.parse("${dotenv.get("API_URL")}/login"),
+        body: jsonEncode({"identifier": identifier, "password": password}),
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        access_token = data["access_token"];
+        print(access_token);
+        emit(AuthSuccess("Credenciais válidas"));
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      emit(
+        AuthFailure(
+          "Credenciais inválidas. Verifique seus dados e tente novamente. $e",
+        ),
+      );
+    }
   }
 
   Future<void> register(
@@ -59,6 +85,8 @@ class AuthCubit extends Cubit<AuthState> {
   ) async {
     http.Client client = http.Client();
 
+    emit(AuthLoading());
+
     Map<String, dynamic> body = {
       "username": username,
       "email": email,
@@ -67,15 +95,19 @@ class AuthCubit extends Cubit<AuthState> {
 
     phone!.isNotEmpty ? body.addAll({"phone": phone}) : ();
 
-    client.post(
-      Uri.parse("${dotenv.get("API_URL")}/register"),
-      body: jsonEncode(body),
-      headers: {
-        'Content-type': 'application/json',
-        'Accept': 'application/json',
-      },
-    );
+    try {
+      client.post(
+        Uri.parse("${dotenv.get("API_URL")}/register"),
+        body: jsonEncode(body),
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
 
-    appUsername = username; // Define o nome do usuário no aplicativo
+      appUsername = username; // Define o nome do usuário no aplicativo
+    } catch (e) {
+      emit(AuthFailure("Erro ao tentar realizar o cadastro."));
+    }
   }
 }
