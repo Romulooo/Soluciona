@@ -68,7 +68,7 @@ class _MapViewState extends State<MapView> {
           Column(
             children: [
               Icon(Icons.person, color: darkBlue, size: 34),
-              Text("Rômulo"),
+              Text(appUsername),
             ],
           ),
           SizedBox(width: 12),

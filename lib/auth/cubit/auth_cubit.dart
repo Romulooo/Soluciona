@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:soluciona/main.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -47,10 +51,31 @@ class AuthCubit extends Cubit<AuthState> {
     client.post(Uri.parse(""));
   }
 
-  Future<void> register() async {
-    //TODO: Função para fazer um POST pro cadastro
+  Future<void> register(
+    String username,
+    String email,
+    String password,
+    String? phone,
+  ) async {
     http.Client client = http.Client();
 
-    client.post(Uri.parse(""));
+    Map<String, dynamic> body = {
+      "username": username,
+      "email": email,
+      "password": password,
+    };
+
+    phone!.isNotEmpty ? body.addAll({"phone": phone}) : ();
+
+    client.post(
+      Uri.parse("${dotenv.get("API_URL")}/register"),
+      body: jsonEncode(body),
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      },
+    );
+
+    appUsername = username; // Define o nome do usuário no aplicativo
   }
 }

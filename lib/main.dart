@@ -9,6 +9,8 @@ Color mediumBlue = Color.fromARGB(255, 43, 87, 160);
 Color lightBlue = Color.fromARGB(255, 139, 197, 255);
 Color white = Color.fromARGB(255, 224, 224, 224);
 
+String appUsername = "";
+
 void main() async {
   await dotenv.load();
   Bloc.observer = const MapObserver();

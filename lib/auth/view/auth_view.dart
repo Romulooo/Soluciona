@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:soluciona/auth/auth.dart';
 import 'package:soluciona/main.dart';
 import 'package:soluciona/map/view/map_page.dart';
 
@@ -26,7 +28,6 @@ class _AuthViewState extends State<AuthView> {
   late TextEditingController _passwordController;
   late TextEditingController _confirmpasswordController;
   late TextEditingController _phoneController;
-  late TextEditingController _birthdateController;
 
   final List<String> _cities = [
     'Peritiba',
@@ -44,58 +45,11 @@ class _AuthViewState extends State<AuthView> {
     super.initState();
     _isLogin = widget.login;
     _accountType = AccountType.cidade;
-    _birthdateController = TextEditingController();
     _usernameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _confirmpasswordController = TextEditingController();
     _phoneController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _birthdateController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      // Define a data inicial para 18 anos atrás
-      initialDate: DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-      ),
-      firstDate: DateTime(1900), // Ano inicial permitido
-      lastDate: DateTime.now(), // Até a data de hoje
-      helpText: 'Selecione sua data de nascimento',
-      cancelText: 'Cancelar',
-      confirmText: 'Confirmar',
-
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: mediumBlue,
-              onPrimary: white,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: mediumBlue),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        String formattedDate =
-            "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
-        _birthdateController.text = formattedDate;
-      });
-    }
   }
 
   @override
@@ -297,44 +251,8 @@ class _AuthViewState extends State<AuthView> {
                             ],
                             controller: _phoneController,
                             decoration: InputDecoration(
-                              labelText: "Telefone",
+                              labelText: "Telefone (opcional)",
                               prefixIcon: const Icon(Icons.phone),
-                              filled: true,
-                              fillColor: const Color(0xFFF2F5F9),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: mediumBlue,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            cursorColor: mediumBlue,
-                          ),
-                        ),
-
-                        SizedBox(height: 16),
-
-                        // Campo data de nascimento
-                        TextSelectionTheme(
-                          data: TextSelectionThemeData(
-                            selectionColor: lightBlue.withAlpha(90),
-                            cursorColor: lightBlue,
-                            selectionHandleColor: lightBlue,
-                          ),
-                          child: TextField(
-                            controller: _birthdateController,
-                            readOnly: true, // Impede o teclado de abrir
-                            onTap:
-                                () =>
-                                    _selectDate(context), // Chama o date picker
-                            decoration: InputDecoration(
-                              labelText: "Data de Nascimento",
-                              prefixIcon: Icon(Icons.calendar_today_outlined),
                               filled: true,
                               fillColor: const Color(0xFFF2F5F9),
                               border: OutlineInputBorder(
@@ -596,28 +514,80 @@ class _AuthViewState extends State<AuthView> {
                 SizedBox(
                   width: double.infinity,
                   height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: mediumBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 3,
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MapPage()),
+                  child: BlocBuilder<AuthCubit, AuthState>(
+                    builder: (context, state) {
+                      if (state is AuthLoading) {
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: mediumBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 3,
+                          ),
+                          onPressed: () {},
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: mediumBlue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 3,
+                        ),
+                        onPressed: () {
+                          if (!_isLogin &&
+                              _usernameController.text.isNotEmpty &&
+                              _emailController.text.isNotEmpty &&
+                              _passwordController.text.isNotEmpty) {
+                            if (_passwordController.text ==
+                                _confirmpasswordController.text) {
+                              context.read<AuthCubit>().register(
+                                _usernameController.text,
+                                _emailController.text,
+                                _passwordController.text,
+                                _phoneController.text,
+                              );
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MapPage(),
+                                ),
+                              );
+                            } else {
+                             ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Senhas não coincidem",
+                                ),
+                              ),
+                            ); 
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Preencha os campos corretamente",
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: Text(
+                          _isLogin ? "Entrar" : "Cadastrar",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       );
                     },
-                    child: Text(
-                      _isLogin ? "Entrar" : "Cadastrar",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
                   ),
                 ),
 
