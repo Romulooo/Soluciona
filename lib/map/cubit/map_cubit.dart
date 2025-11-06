@@ -182,4 +182,35 @@ class MapCubit extends Cubit<MapState> {
       list.clear();
     }
   }
+
+  Future<Report> viewReport(LatLng location, int id) async {
+    http.Client client = http.Client();
+
+    try {
+      final response = await client.get(
+        Uri.parse("${dotenv.get("API_URL")}/reports/$id"),
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $access_token',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        emit(MapSuccess(location: location));
+        print(data);
+
+
+        return Report.fromJson(data);
+        
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      emit(MapFailure("Erro ao carregar os problemas da cidade. $e"));
+      return Report.fromJson({});
+    }
+  }
 }

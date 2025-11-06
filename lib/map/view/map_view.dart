@@ -137,12 +137,27 @@ class _MapViewState extends State<MapView> {
 
                 MarkerLayer(
                   markers: List.generate(_reports.length, (index) {
-                    final report = _reports[index];
+                    Report report = _reports[index];
 
                     return Marker(
                       point: LatLng(report.latitude, report.longitude),
                       child: GestureDetector(
-                        onTap: () {
+                        onTap: () async {
+                          final mapCubit = context.read<MapCubit>();
+                          final state = mapCubit.state;
+
+                          if (state is MapSuccess) {
+                            await mapCubit.getReports(state.location, _reports);
+
+                            report = await mapCubit.viewReport(
+                              state.location,
+                              report.id,
+                            );
+
+                            setState(() {
+                              report = report;
+                            });
+                          }
                           showPopupCard(
                             context: context,
                             builder: (context) {
@@ -603,6 +618,7 @@ class _MapViewState extends State<MapView> {
                                                       address:
                                                           "${_roadController.text}, ${_suburbController.text}",
                                                       place_id: place_id,
+                                                      id: 0,
                                                     );
 
                                                     await parentContext
@@ -726,6 +742,21 @@ class _MapViewState extends State<MapView> {
                     setState(() {
                       _reports = _reports;
                     });
+
+                    List<Report> _newReports = [];
+
+                    for (Report report in _reports) {
+                      report = await mapCubit.viewReport(
+                        state.location,
+                        report.id,
+                      );
+                      _newReports.add(report);
+                      print(report.name);
+                    }
+
+                    setState(() {
+                      _reports = _newReports;
+                    });
                   }
 
                   showModalBottomSheet<void>(
@@ -749,15 +780,19 @@ class _MapViewState extends State<MapView> {
                                     return Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: ListTile(
-                                        leading: const Icon(Icons.report_problem),
+                                        leading: const Icon(
+                                          Icons.report_problem,
+                                        ),
                                         title: Text(
-                                          _reports[index].latitude.toString(),
+                                          _reports[index].name.toString(),
                                         ),
                                         subtitle: Text(
-                                          _reports[index].longitude.toString(),
+                                          _reports[index].address.toString(),
                                         ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           side: const BorderSide(width: 2),
                                         ),
                                         trailing: IconButton(

@@ -7,6 +7,7 @@ class Report {
   String registeredBy;
   String address;
   int place_id;
+  int id;
 
   Report({
     required this.name,
@@ -16,7 +17,8 @@ class Report {
     required this.place,
     required this.address,
     required this.registeredBy,
-    required this.place_id
+    required this.place_id,
+    required this.id
   });
 
   Map<String, dynamic> toJson() {
@@ -40,8 +42,9 @@ class Report {
     longitude: (json['longitude'] as num).toDouble(),
     place: json['place'] ?? "Cidade indefinida",
     address: json['address'] ?? "Endereço indefinido",
-    registeredBy: json['registered_by'] ?? "0",
+    registeredBy: json['registered_by'].toString() ?? "0",
     place_id: json['place_id'] ?? 1,
+    id: json['id'] ?? 1
   );
 }
 }
