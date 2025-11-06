@@ -6,6 +6,8 @@ import 'package:soluciona/map/cubit/map_cubit.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_popup_card/flutter_popup_card.dart';
+import 'package:soluciona/map/view/components/info_popup.dart';
+import 'package:soluciona/map/view/components/modal_bottom_sheet.dart';
 import 'package:soluciona/report/report_cubit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -158,42 +160,7 @@ class _MapViewState extends State<MapView> {
                               report = report;
                             });
                           }
-                          showPopupCard(
-                            context: context,
-                            builder: (context) {
-                              return PopupCard(
-                                elevation: 8,
-
-                                color: white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                child: SizedBox(
-                                  width: 300,
-                                  height: 500,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          report.name,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(report.description),
-                                        Spacer(),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-
-                            alignment: Alignment.center,
-                            useSafeArea: true,
-                            dimBackground: true,
-                          );
+                          InfoPopup(context, report);
                         },
                         child: Icon(
                           Icons.report_problem,
@@ -751,7 +718,6 @@ class _MapViewState extends State<MapView> {
                         report.id,
                       );
                       _newReports.add(report);
-                      print(report.name);
                     }
 
                     setState(() {
@@ -759,55 +725,7 @@ class _MapViewState extends State<MapView> {
                     });
                   }
 
-                  showModalBottomSheet<void>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Container(
-                        padding: const EdgeInsets.all(32.0),
-                        child:
-                            _reports.isEmpty
-                                ? const Text(
-                                  "Não há problemas disponíveis no momento em sua região",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                                : ListView.builder(
-                                  itemCount: _reports.length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ListTile(
-                                        leading: const Icon(
-                                          Icons.report_problem,
-                                        ),
-                                        title: Text(
-                                          _reports[index].name.toString(),
-                                        ),
-                                        subtitle: Text(
-                                          _reports[index].address.toString(),
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          side: const BorderSide(width: 2),
-                                        ),
-                                        trailing: IconButton(
-                                          icon: const Icon(Icons.info_outline),
-                                          onPressed: () {
-                                            // TODO: abrir popup
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                      );
-                    },
-                  );
+                  ModalBottomSheet(context, _reports);
                 },
                 child: Icon(Icons.list, color: darkBlue, size: 30),
               ),
