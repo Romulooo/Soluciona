@@ -568,7 +568,10 @@ class _AuthViewState extends State<AuthView> {
                                   _phoneController.text,
                                 );
 
-                                context.read<AuthCubit>().login(
+                                await Future.delayed(Duration(seconds: 1));
+                                // Pra ter certeza que o cadastro foi finalizado
+
+                                await context.read<AuthCubit>().login(
                                   _usernameController.text,
                                   _passwordController.text,
                                 );
