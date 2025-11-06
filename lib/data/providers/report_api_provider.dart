@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:soluciona/main.dart';
 import 'dart:convert';
 import '../models/report_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,7 +12,12 @@ class ReportApiProvider {
 
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $access_token',
+      },
+      
       body: jsonEncode(report.toJson()),
     );
 

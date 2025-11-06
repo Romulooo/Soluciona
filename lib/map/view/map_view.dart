@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_popup_card/flutter_popup_card.dart';
 import 'package:soluciona/report/report_cubit.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,16 +20,7 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
-  final List<Report> _reports = [
-    Report(
-      name: "Teste",
-      description: "Descrição",
-      latitude: "-27",
-      longitude: "-52",
-      place: "Conkas",
-      registeredBy: "1",
-    ),
-  ];
+  List<Report> _reports = [];
 
   PlatformFile? _selectedFile;
 
@@ -104,9 +96,15 @@ class _MapViewState extends State<MapView> {
           return (previous is MapLoading && current is MapSuccess) ||
               current is MapFailure;
         },
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is MapSuccess) {
             mapController.move(state.location, 15.0);
+
+            await context.read<MapCubit>().getReports(state.location, _reports);
+
+            setState(() {
+              _reports = _reports;
+            });
           } else if (state is MapFailure) {
             ScaffoldMessenger.of(
               context,
@@ -121,7 +119,8 @@ class _MapViewState extends State<MapView> {
                 onTap: (tapPosition, point) async {
                   final place = await context.read<MapCubit>().getPlace(point);
 
-                  if (place["town"] == "Concórdia") { //TODO: Pegar a cidade do usuário
+                  if (place["town"] == "Concórdia") {
+                    //TODO: Pegar a cidade do usuário
                     context.read<MapCubit>().reportPin(point);
                   }
                 },
@@ -132,7 +131,7 @@ class _MapViewState extends State<MapView> {
               children: [
                 TileLayer(
                   urlTemplate:
-                      'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=CanpjbKvOGYhddHuo8Ut',
+                      'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${dotenv.get("API_KEY")}',
                   userAgentPackageName: 'com.example.soluciona',
                 ),
 
@@ -141,10 +140,7 @@ class _MapViewState extends State<MapView> {
                     final report = _reports[index];
 
                     return Marker(
-                      point: LatLng(
-                        double.parse(report.latitude),
-                        double.parse(report.longitude),
-                      ),
+                      point: LatLng(report.latitude, report.longitude),
                       child: GestureDetector(
                         onTap: () {
                           showPopupCard(
@@ -257,12 +253,19 @@ class _MapViewState extends State<MapView> {
                               final TextEditingController _suburbController =
                                   TextEditingController(text: place["suburb"]);
 
+                              await Future.delayed(
+                                const Duration(milliseconds: 300),
+                              );
+                              if (!context.mounted)
+                                return; // Pra esperar o contexto se adequar ao async
+
+                              final parentContext = context;
+
                               showPopupCard(
                                 context: context,
-                                builder: (context) {
+                                builder: (popupContext) {
                                   return PopupCard(
                                     elevation: 8,
-
                                     color: white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12.0),
@@ -271,17 +274,19 @@ class _MapViewState extends State<MapView> {
                                       width: 450,
                                       height: 500,
                                       child: Padding(
-                                        padding: EdgeInsets.all(16.0),
+                                        padding: const EdgeInsets.all(16.0),
                                         child: Column(
                                           children: [
                                             Text(
                                               'Reportar Problema',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            SizedBox(height: 20),
+                                            const SizedBox(height: 20),
+
+                                            // Rua e Bairro
                                             Row(
                                               children: [
                                                 Expanded(
@@ -306,7 +311,6 @@ class _MapViewState extends State<MapView> {
                                                               color: darkBlue,
                                                             ),
                                                         labelText: "Rua",
-
                                                         filled: true,
                                                         fillColor: const Color(
                                                           0xFFF2F5F9,
@@ -324,23 +328,24 @@ class _MapViewState extends State<MapView> {
                                                               BorderRadius.circular(
                                                                 12,
                                                               ),
-                                                          borderSide: BorderSide(
-                                                            color:
-                                                                const Color.fromARGB(
-                                                                  255,
-                                                                  60,
-                                                                  60,
-                                                                  60,
-                                                                ),
-                                                            width: 2,
-                                                          ),
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                color:
+                                                                    Color.fromARGB(
+                                                                      255,
+                                                                      60,
+                                                                      60,
+                                                                      60,
+                                                                    ),
+                                                                width: 2,
+                                                              ),
                                                         ),
                                                       ),
                                                       cursorColor: darkBlue,
                                                     ),
                                                   ),
                                                 ),
-                                                SizedBox(width: 4),
+                                                const SizedBox(width: 4),
                                                 Expanded(
                                                   child: TextSelectionTheme(
                                                     data:
@@ -363,7 +368,6 @@ class _MapViewState extends State<MapView> {
                                                               color: darkBlue,
                                                             ),
                                                         labelText: "Bairro",
-
                                                         filled: true,
                                                         fillColor: const Color(
                                                           0xFFF2F5F9,
@@ -381,16 +385,17 @@ class _MapViewState extends State<MapView> {
                                                               BorderRadius.circular(
                                                                 12,
                                                               ),
-                                                          borderSide: BorderSide(
-                                                            color:
-                                                                const Color.fromARGB(
-                                                                  255,
-                                                                  60,
-                                                                  60,
-                                                                  60,
-                                                                ),
-                                                            width: 2,
-                                                          ),
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                color:
+                                                                    Color.fromARGB(
+                                                                      255,
+                                                                      60,
+                                                                      60,
+                                                                      60,
+                                                                    ),
+                                                                width: 2,
+                                                              ),
                                                         ),
                                                       ),
                                                       cursorColor: darkBlue,
@@ -399,7 +404,10 @@ class _MapViewState extends State<MapView> {
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 8),
+
+                                            const SizedBox(height: 8),
+
+                                            // Problema
                                             TextSelectionTheme(
                                               data: TextSelectionThemeData(
                                                 selectionColor: lightBlue
@@ -413,7 +421,6 @@ class _MapViewState extends State<MapView> {
                                                     color: darkBlue,
                                                   ),
                                                   labelText: "Problema",
-
                                                   prefixIcon: const Icon(
                                                     Icons.report_problem_sharp,
                                                   ),
@@ -428,27 +435,32 @@ class _MapViewState extends State<MapView> {
                                                         ),
                                                     borderSide: BorderSide.none,
                                                   ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
-                                                    borderSide: BorderSide(
-                                                      color:
-                                                          const Color.fromARGB(
-                                                            255,
-                                                            60,
-                                                            60,
-                                                            60,
-                                                          ),
-                                                      width: 2,
-                                                    ),
-                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color:
+                                                                  Color.fromARGB(
+                                                                    255,
+                                                                    60,
+                                                                    60,
+                                                                    60,
+                                                                  ),
+                                                              width: 2,
+                                                            ),
+                                                      ),
                                                 ),
                                                 cursorColor: darkBlue,
                                               ),
                                             ),
-                                            SizedBox(height: 8),
+
+                                            const SizedBox(height: 8),
+
+                                            // Descrição
                                             TextSelectionTheme(
                                               data: TextSelectionThemeData(
                                                 selectionColor: lightBlue
@@ -465,7 +477,6 @@ class _MapViewState extends State<MapView> {
                                                     color: darkBlue,
                                                   ),
                                                   labelText: "Descrição",
-
                                                   filled: true,
                                                   fillColor: const Color(
                                                     0xFFF2F5F9,
@@ -477,27 +488,32 @@ class _MapViewState extends State<MapView> {
                                                         ),
                                                     borderSide: BorderSide.none,
                                                   ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
-                                                    borderSide: BorderSide(
-                                                      color:
-                                                          const Color.fromARGB(
-                                                            255,
-                                                            60,
-                                                            60,
-                                                            60,
-                                                          ),
-                                                      width: 2,
-                                                    ),
-                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color:
+                                                                  Color.fromARGB(
+                                                                    255,
+                                                                    60,
+                                                                    60,
+                                                                    60,
+                                                                  ),
+                                                              width: 2,
+                                                            ),
+                                                      ),
                                                 ),
                                                 cursorColor: darkBlue,
                                               ),
                                             ),
-                                            Spacer(),
+
+                                            const Spacer(),
+
+                                            // Botão de escolher arquivo
                                             ElevatedButtonTheme(
                                               data: ElevatedButtonThemeData(
                                                 style: ElevatedButton.styleFrom(
@@ -514,7 +530,7 @@ class _MapViewState extends State<MapView> {
                                                 onPressed: () {
                                                   _selecionarArquivo();
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   'Escolher Arquivo',
                                                   style: TextStyle(
                                                     color: Colors.white,
@@ -523,23 +539,21 @@ class _MapViewState extends State<MapView> {
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(height: 6),
+
+                                            const SizedBox(height: 6),
+
                                             if (_selectedFile != null)
-                                              /*SizedBox(
-                                                width: 200,
-                                                child: Image.memory(
-                                                  _selectedFile!.bytes!,
-                                                  height: 50,
-                                                ),
-                                              )*/
                                               SizedBox()
                                             else
-                                              Text(
+                                              const Text(
                                                 'Nenhum arquivo selecionado',
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(fontSize: 12),
                                               ),
-                                            SizedBox(height: 10),
+
+                                            const SizedBox(height: 10),
+
+                                            // Botão Enviar
                                             SizedBox(
                                               width: double.infinity,
                                               height: 40,
@@ -554,8 +568,7 @@ class _MapViewState extends State<MapView> {
                                                   ),
                                                   elevation: 3,
                                                 ),
-                                                onPressed: () {
-                                                  //Verifica se algum tá vazio
+                                                onPressed: () async {
                                                   if (_roadController
                                                           .text
                                                           .isNotEmpty &&
@@ -568,7 +581,6 @@ class _MapViewState extends State<MapView> {
                                                       _descriptionController
                                                           .text
                                                           .isNotEmpty) {
-                                                    // Não está vazio
                                                     final report = Report(
                                                       name:
                                                           _reportController
@@ -578,33 +590,45 @@ class _MapViewState extends State<MapView> {
                                                               .text,
                                                       latitude:
                                                           state
-                                                              .location
-                                                              .latitude
-                                                              .toString(),
+                                                              .reportPin!
+                                                              .latitude,
                                                       longitude:
                                                           state
-                                                              .location
-                                                              .longitude
-                                                              .toString(),
+                                                              .reportPin!
+                                                              .longitude,
                                                       place:
+                                                          place["town"] ??
+                                                          "Cidade indefinida",
+                                                      registeredBy: appUsername,
+                                                      address:
                                                           "${_roadController.text}, ${_suburbController.text}",
-                                                      registeredBy:
-                                                          "0", // TODO: Colocar o nome do usuário
+                                                      place_id: place_id,
                                                     );
 
-                                                    context
+                                                    await parentContext
                                                         .read<ReportCubit>()
                                                         .sendReport(report);
-                                                    Navigator.pop(context);
+
+                                                    await parentContext
+                                                        .read<MapCubit>()
+                                                        .getReports(
+                                                          state.location,
+                                                          _reports,
+                                                        );
+
+                                                    setState(() {
+                                                      _reports = _reports;
+                                                    });
+
+                                                    Navigator.pop(popupContext);
                                                   } else {
-                                                    //Algum está vazio
                                                     ScaffoldMessenger.of(
-                                                      context,
+                                                      popupContext,
                                                     ).clearSnackBars();
                                                     ScaffoldMessenger.of(
-                                                      context,
+                                                      popupContext,
                                                     ).showSnackBar(
-                                                      SnackBar(
+                                                      const SnackBar(
                                                         content: Text(
                                                           "Preencha todos os campos corretamente",
                                                         ),
@@ -628,7 +652,6 @@ class _MapViewState extends State<MapView> {
                                     ),
                                   );
                                 },
-
                                 alignment: Alignment.center,
                                 useSafeArea: true,
                                 dimBackground: true,
@@ -692,36 +715,61 @@ class _MapViewState extends State<MapView> {
               left: 14,
               child: FloatingActionButton(
                 backgroundColor: white,
-                shape: CircleBorder(),
+                shape: const CircleBorder(),
                 splashColor: lightBlue,
-                onPressed: () {
+                onPressed: () async {
+                  final mapCubit = context.read<MapCubit>();
+                  final state = mapCubit.state;
+
+                  if (state is MapSuccess) {
+                    await mapCubit.getReports(state.location, _reports);
+                    setState(() {
+                      _reports = _reports;
+                    });
+                  }
+
                   showModalBottomSheet<void>(
                     context: context,
                     builder: (BuildContext context) {
                       return Container(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32.0),
-                          child: ListView.builder(
-                            itemCount: _reports.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                leading: Icon(Icons.report_problem),
-                                title: Text(_reports[index].name),
-                                subtitle: Text(_reports[index].place),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(width: 2),
-                                ),
-                                trailing: IconButton(
-                                  icon: Icon(Icons.info_outline),
-                                  onPressed: () {
-                                    // TODO: Abrir o Popup
+                        padding: const EdgeInsets.all(32.0),
+                        child:
+                            _reports.isEmpty
+                                ? const Text(
+                                  "Não há problemas disponíveis no momento em sua região",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                                : ListView.builder(
+                                  itemCount: _reports.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ListTile(
+                                        leading: const Icon(Icons.report_problem),
+                                        title: Text(
+                                          _reports[index].latitude.toString(),
+                                        ),
+                                        subtitle: Text(
+                                          _reports[index].longitude.toString(),
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          side: const BorderSide(width: 2),
+                                        ),
+                                        trailing: IconButton(
+                                          icon: const Icon(Icons.info_outline),
+                                          onPressed: () {
+                                            // TODO: abrir popup
+                                          },
+                                        ),
+                                      ),
+                                    );
                                   },
                                 ),
-                              );
-                            },
-                          ),
-                        ),
                       );
                     },
                   );

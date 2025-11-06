@@ -6,6 +6,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:soluciona/data/models/report_model.dart';
+import 'package:soluciona/main.dart';
 
 abstract class MapState extends Equatable {
   const MapState();
@@ -145,5 +147,39 @@ class MapCubit extends Cubit<MapState> {
       "suburb": "Indefinido",
       "town": "Indefinida",
     };
+  }
+
+  Future<void> getReports(LatLng location, List<dynamic> list) async {
+    http.Client client = http.Client();
+
+    try {
+      final response = await client.get(
+        Uri.parse("${dotenv.get("API_URL")}/reports"),
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $access_token',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        emit(MapSuccess(location: location));
+
+        list.clear();
+        
+        final reports = (data["reports"] as List)
+          .map((item) => Report.fromJson(item))
+          .toList();
+
+      list.addAll(reports);
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      emit(MapFailure("Erro ao carregar os problemas da cidade. $e"));
+      list.clear();
+    }
   }
 }

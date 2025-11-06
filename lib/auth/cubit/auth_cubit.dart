@@ -63,6 +63,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       if (response.statusCode == 200) {
         access_token = data["access_token"];
+        appUsername = data["username"]; // Define o nome do usuário no aplicativo
         print(access_token);
         emit(AuthSuccess("Credenciais válidas"));
       } else {
@@ -71,7 +72,7 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       emit(
         AuthFailure(
-          "Credenciais inválidas. Verifique seus dados e tente novamente. $e",
+          "Credenciais inválidas. Verifique seus dados e tente novamente.",
         ),
       );
     }
@@ -91,6 +92,7 @@ class AuthCubit extends Cubit<AuthState> {
       "username": username,
       "email": email,
       "password": password,
+      "place_id": 1
     };
 
     phone!.isNotEmpty ? body.addAll({"phone": phone}) : ();
@@ -104,8 +106,6 @@ class AuthCubit extends Cubit<AuthState> {
           'Accept': 'application/json',
         },
       );
-
-      appUsername = username; // Define o nome do usuário no aplicativo
     } catch (e) {
       emit(AuthFailure("Erro ao tentar realizar o cadastro."));
     }

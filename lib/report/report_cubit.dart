@@ -13,7 +13,7 @@ class ReportCubit extends Cubit<ReportState> {
 
     try {
       await repository.sendReport(report);
-      emit(state.copyWith(isLoading: false, isSuccess: true));
+      emit(state.copyWith(isLoading: false, isSuccess: true, error: "Problema reportado com sucesso"));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }

@@ -11,6 +11,7 @@ Color white = Color.fromARGB(255, 224, 224, 224);
 
 String appUsername = "";
 String access_token = "";
+int place_id = 1;
 
 void main() async {
   await dotenv.load();
