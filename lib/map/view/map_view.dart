@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soluciona/data/models/report_model.dart';
@@ -40,7 +42,6 @@ class _MapViewState extends State<MapView> {
     FilePickerResult? resultado = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       type: FileType.image,
-      withData: true,
     );
 
     if (resultado != null && resultado.files.isNotEmpty) {
@@ -215,15 +216,15 @@ class _MapViewState extends State<MapView> {
                           point: state.reportPin!,
                           child: GestureDetector(
                             /*onLongPress: () {
-                              context.read<MapCubit>().clearPin();
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Pin removido'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            },*/
+                                context.read<MapCubit>().clearPin();
+                                ScaffoldMessenger.of(context).clearSnackBars();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Pin removido'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },*/
                             onTap: () async {
                               final place = await context
                                   .read<MapCubit>()
@@ -554,6 +555,14 @@ class _MapViewState extends State<MapView> {
                                                   elevation: 3,
                                                 ),
                                                 onPressed: () async {
+                                                  final selectedPath =
+                                                      _selectedFile?.path;
+                                                  File? file;
+                                                  if (selectedPath != null &&
+                                                      selectedPath.isNotEmpty) {
+                                                    file = File(selectedPath);
+                                                  }
+
                                                   if (_roadController
                                                           .text
                                                           .isNotEmpty &&
@@ -566,7 +575,7 @@ class _MapViewState extends State<MapView> {
                                                       _descriptionController
                                                           .text
                                                           .isNotEmpty) {
-                                                    final report = Report(
+                                                    Report report = Report(
                                                       name:
                                                           _reportController
                                                               .text,
@@ -589,11 +598,24 @@ class _MapViewState extends State<MapView> {
                                                           "${_roadController.text}, ${_suburbController.text}",
                                                       place_id: place_id,
                                                       id: 0,
+                                                      images: [],
                                                     );
 
-                                                    await parentContext
-                                                        .read<ReportCubit>()
-                                                        .sendReport(report);
+                                                    String reportId =
+                                                        await parentContext
+                                                            .read<ReportCubit>()
+                                                            .sendReport(report);
+
+                                                    if (reportId.isNotEmpty &&
+                                                        file != null) {
+                                                      //Enviar imagem
+                                                      await parentContext
+                                                          .read<ReportCubit>()
+                                                          .sendImage(
+                                                            file,
+                                                            reportId,
+                                                          );
+                                                    }
 
                                                     await parentContext
                                                         .read<MapCubit>()

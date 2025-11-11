@@ -102,7 +102,7 @@ class AuthCubit extends Cubit<AuthState> {
       "username": username,
       "email": email,
       "password": password,
-      "place_id": placeId
+      "place_id": placeId,
     };
 
     phone!.isNotEmpty ? body.addAll({"phone": phone}) : ();
