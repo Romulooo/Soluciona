@@ -63,7 +63,8 @@ class AuthCubit extends Cubit<AuthState> {
 
       if (response.statusCode == 200) {
         access_token = data["access_token"];
-        appUsername = data["username"]; // Define o nome do usuário no aplicativo
+        appUsername =
+            data["username"]; // Define o nome do usuário no aplicativo
         print(access_token);
         emit(AuthSuccess("Credenciais válidas"));
       } else {
@@ -92,7 +93,7 @@ class AuthCubit extends Cubit<AuthState> {
       "username": username,
       "email": email,
       "password": password,
-      "place_id": 1
+      "place_id": 1,
     };
 
     phone!.isNotEmpty ? body.addAll({"phone": phone}) : ();
