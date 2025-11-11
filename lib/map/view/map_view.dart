@@ -23,6 +23,7 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   List<Report> _reports = [];
+  bool readyList = true;
 
   PlatformFile? _selectedFile;
 
@@ -121,8 +122,10 @@ class _MapViewState extends State<MapView> {
                 onTap: (tapPosition, point) async {
                   final place = await context.read<MapCubit>().getPlace(point);
 
-                  if (place["town"] == "Concórdia") {
-                    //TODO: Pegar a cidade do usuário
+                  print(locationName);
+                  print(place["town"]);
+
+                  if (place["town"] == locationName) {
                     context.read<MapCubit>().reportPin(point);
                   }
                 },
@@ -707,6 +710,7 @@ class _MapViewState extends State<MapView> {
                   if (state is MapSuccess) {
                     await mapCubit.getReports(state.location, _reports);
                     setState(() {
+                      readyList = false;
                       _reports = _reports;
                     });
 
@@ -722,12 +726,16 @@ class _MapViewState extends State<MapView> {
 
                     setState(() {
                       _reports = _newReports;
+                      readyList = true;
                     });
                   }
 
                   ModalBottomSheet(context, _reports);
                 },
-                child: Icon(Icons.list, color: darkBlue, size: 30),
+                child:
+                    readyList
+                        ? Icon(Icons.list, color: darkBlue, size: 30)
+                        : CircularProgressIndicator(color: darkBlue),
               ),
             ),
           ],

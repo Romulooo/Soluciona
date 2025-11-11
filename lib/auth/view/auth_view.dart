@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soluciona/auth/auth.dart';
+import 'package:soluciona/auth/cubit/list_places.dart';
+import 'package:soluciona/data/models/place_model.dart';
 import 'package:soluciona/main.dart';
 import 'package:soluciona/map/view/map_page.dart';
 
@@ -29,16 +31,8 @@ class _AuthViewState extends State<AuthView> {
   late TextEditingController _confirmpasswordController;
   late TextEditingController _phoneController;
 
-  final List<String> _cities = [
-    'Peritiba',
-    'Paim Filho',
-    'Concórdia',
-    'Itá',
-    'Capinzal',
-    'Chapecó',
-    'Xanxerê',
-  ];
-  final List<String> _institutions = ['IFC Concórdia', 'EEBIAS'];
+  List<Place> _cities = [];
+  List<Place> _institutions = [];
 
   @override
   void initState() {
@@ -50,6 +44,20 @@ class _AuthViewState extends State<AuthView> {
     _passwordController = TextEditingController();
     _confirmpasswordController = TextEditingController();
     _phoneController = TextEditingController();
+
+    _loadCities();
+  }
+
+  Future<void> _loadCities() async {
+    final cities = await listPlaces("Cidade");
+    setState(() {
+      _cities = cities;
+    });
+
+    final institutions = await listPlaces("Campus");
+    setState(() {
+      _institutions = institutions;
+    });
   }
 
   @override
@@ -429,10 +437,12 @@ class _AuthViewState extends State<AuthView> {
                                     dropdownColor: white,
                                     style: TextStyle(color: darkBlue),
                                     items:
-                                        _cities.map((String city) {
+                                        _cities.map((Place city) {
                                           return DropdownMenuItem<String>(
-                                            value: city,
-                                            child: Text(city),
+                                            value: city.place_id.toString(),
+                                            child: Text(
+                                              city.town_name ?? "Erro",
+                                            ),
                                           );
                                         }).toList(),
                                     onChanged: (String? newValue) {
@@ -472,10 +482,13 @@ class _AuthViewState extends State<AuthView> {
                                     style: TextStyle(color: darkBlue),
 
                                     items:
-                                        _institutions.map((String institution) {
+                                        _institutions.map((Place institution) {
                                           return DropdownMenuItem<String>(
-                                            value: institution,
-                                            child: Text(institution),
+                                            value:
+                                                institution.place_id.toString(),
+                                            child: Text(
+                                              institution.institution_name!,
+                                            ),
                                           );
                                         }).toList(),
                                     onChanged: (String? newValue) {
@@ -516,37 +529,22 @@ class _AuthViewState extends State<AuthView> {
                 SizedBox(
                   width: double.infinity,
                   height: 50,
-                  child: BlocBuilder<AuthCubit, AuthState>(
-                    builder: (context, state) {
-                      if (state is AuthLoading) {
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: mediumBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 3,
-                          ),
-                          onPressed: () {},
-                          child: CircularProgressIndicator(),
+                  child: BlocListener<AuthCubit, AuthState>(
+                    listener: (context, state) {
+                      if (state is AuthSuccess) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MapPage()),
                         );
+                      } else if (state is AuthFailure) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(state.error)));
                       }
-                      return BlocListener<AuthCubit, AuthState>(
-                        listener: (context, state) {
-                          if (state is AuthSuccess) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MapPage(),
-                              ),
-                            );
-                          } else if (state is AuthFailure) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(state.error)),
-                            );
-                          }
-                        },
-                        child: ElevatedButton(
+                    },
+                    child: BlocBuilder<AuthCubit, AuthState>(
+                      builder: (context, state) {
+                        return ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: mediumBlue,
                             shape: RoundedRectangleBorder(
@@ -554,69 +552,79 @@ class _AuthViewState extends State<AuthView> {
                             ),
                             elevation: 3,
                           ),
-                          onPressed: () async {
-                            if (!_isLogin &&
-                                _usernameController.text.isNotEmpty &&
-                                _emailController.text.isNotEmpty &&
-                                _passwordController.text.isNotEmpty) {
-                              if (_passwordController.text ==
-                                  _confirmpasswordController.text) {
-                                await context.read<AuthCubit>().register(
-                                  _usernameController.text,
-                                  _emailController.text,
-                                  _passwordController.text,
-                                  _phoneController.text,
-                                );
+                          onPressed:
+                              state is AuthLoading
+                                  ? null
+                                  : () async {
+                                    if (!_isLogin &&
+                                        _usernameController.text.isNotEmpty &&
+                                        _emailController.text.isNotEmpty &&
+                                        _passwordController.text.isNotEmpty) {
+                                      if (_passwordController.text ==
+                                          _confirmpasswordController.text) {
+                                        await context
+                                            .read<AuthCubit>()
+                                            .register(
+                                              _usernameController.text,
+                                              _emailController.text,
+                                              _passwordController.text,
+                                              _phoneController.text,
+                                              int.parse(_selectedCity!),
+                                            );
 
-                                await Future.delayed(Duration(seconds: 1));
-                                // Pra ter certeza que o cadastro foi finalizado
-
-                                await context.read<AuthCubit>().login(
-                                  _usernameController.text,
-                                  _passwordController.text,
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).clearSnackBars();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Senhas não coincidem."),
-                                  ),
-                                );
-                              }
-                            } else if (_isLogin &&
-                                _usernameController.text.isNotEmpty &&
-                                _passwordController.text.isNotEmpty) {
-                              context.read<AuthCubit>().login(
-                                _usernameController.text,
-                                _passwordController.text,
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Preencha os campos corretamente.",
-                                  ),
-                                ),
-                              );
-                            }
-                          },
+                                        await Future.delayed(
+                                          const Duration(seconds: 1),
+                                        );
+                                        await context.read<AuthCubit>().login(
+                                          _usernameController.text,
+                                          _passwordController.text,
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Senhas não coincidem.",
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } else if (_isLogin &&
+                                        _usernameController.text.isNotEmpty &&
+                                        _passwordController.text.isNotEmpty) {
+                                      await context.read<AuthCubit>().login(
+                                        _usernameController.text,
+                                        _passwordController.text,
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Preencha os campos corretamente.",
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
                           child:
                               state is AuthLoading
-                                  ? CircularProgressIndicator(
+                                  ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
                                   : Text(
                                     _isLogin ? "Entrar" : "Cadastrar",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
                                   ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
 
